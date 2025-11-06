@@ -1,8 +1,6 @@
-using Microsoft.AspNetCore.Mvc;
-using klineflow.Services;
 using klineflow.DTOs;
-using System.Threading.Tasks;
-using klineflow.Models;
+using klineflow.Services;
+using Microsoft.AspNetCore.Mvc;
 
 namespace klineflow.Controllers
 {
@@ -22,7 +20,7 @@ namespace klineflow.Controllers
  }
 
  [HttpPost("fetch")]
- public async Task<IActionResult> FetchAndStore([FromBody] ForecastRequestDto req)
+ public async Task<IActionResult> FetchAndStore([FromBody] CandlesRequestDto req)
  {
  var candles = await _binance.FetchCandlesAsync(req.Symbol, req.Interval, req.Limit);
  await _ts.StoreCandlesAsync(candles);
@@ -30,11 +28,19 @@ namespace klineflow.Controllers
  }
 
  [HttpPost("forecast")]
- public async Task<IActionResult> Forecast([FromBody] ForecastRequestDto req)
+ public async Task<IActionResult> Forecast([FromBody] CandlesRequestDto req)
  {
  var candles = await _ts.GetRecentAsync(req.Symbol, req.Limit);
- var result = _forecast.Forecast(candles);
- return Ok(result);
+ // Call Gemini analysis with fixed prompt and candle data
+ var geminiResponse = await _forecast.AnalyzeWithGeminiAsync(candles);
+ return Ok(new { gemini = geminiResponse });
+ }
+
+ [HttpDelete("all")]
+ public async Task<IActionResult> DeleteAll()
+ {
+ await _ts.DeleteAllAsync();
+ return Ok(new { deleted = true });
  }
  }
 }

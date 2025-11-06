@@ -1,8 +1,5 @@
-using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using klineflow.Config;
 using klineflow.Clients;
+using klineflow.Config;
 using klineflow.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -20,10 +17,14 @@ builder.Services.AddHttpClient<BinanceApiClient>()
 // Supabase Rest client
 builder.Services.AddHttpClient<SupabaseRestClient>();
 
+// HttpClient for ForecastService (Gemini calls)
+builder.Services.AddHttpClient<ForecastService>();
+
 // DI - register services
 builder.Services.AddScoped<BinanceService>();
 builder.Services.AddScoped<TimeSeriesService>();
-builder.Services.AddSingleton<ForecastService>();
+// ForecastService uses HttpClient via DI
+builder.Services.AddScoped<ForecastService>();
 builder.Services.AddScoped<SupabaseRestClient>();
 
 builder.Services.AddControllers();

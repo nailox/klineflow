@@ -1,7 +1,5 @@
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using klineflow.Models;
 using klineflow.Clients;
+using klineflow.Models;
 
 namespace klineflow.Services
 {
@@ -16,6 +14,11 @@ namespace klineflow.Services
  public async Task StoreCandlesAsync(List<Candle> candles)
  {
  await _supabase.InsertCandlesAsync(candles);
+ }
+
+ public async Task DeleteAllAsync()
+ {
+ await _supabase.DeleteAllAsync();
  }
 
  public async Task<List<Candle>> GetRecentAsync(string symbol, int take =100)

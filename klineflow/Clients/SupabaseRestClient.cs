@@ -1,15 +1,7 @@
-using System.Net.Http;
-using System.Net.Http.Json;
-using System.Threading.Tasks;
-using System.Collections.Generic;
-using Microsoft.Extensions.Configuration;
-using System;
 using klineflow.Models;
-using System.Linq;
-using System.Text.Json;
-using System.Text;
-using Microsoft.Extensions.Logging;
 using System.Net;
+using System.Text;
+using System.Text.Json;
 
 namespace klineflow.Clients
 {
@@ -79,6 +71,29 @@ namespace klineflow.Clients
             }
 
             _logger.LogInformation("Supabase insert succeeded to {Endpoint}: {Status}", endpoint, (int)res.StatusCode);
+        }
+
+        public async Task DeleteAllAsync()
+        {
+            var baseUrl = _url.TrimEnd('/');
+            // PostgREST requires a WHERE clause for DELETE; use id=gt.0 to match all rows
+            var endpoint = $"{baseUrl}/rest/v1/candles?id=gt.0";
+
+            _logger.LogInformation("Supabase DELETE all POST {Endpoint} - apiKey={ApiKeyMask}", endpoint, MaskKey(_apikey));
+
+            var request = new HttpRequestMessage(HttpMethod.Delete, endpoint);
+            // Prefer header can request returning representation; not needed for delete-only
+            request.Headers.Add("Prefer", "return=representation");
+
+            var res = await _http.SendAsync(request);
+            if (!res.IsSuccessStatusCode)
+            {
+                var body = await res.Content.ReadAsStringAsync();
+                _logger.LogError("Supabase delete all failed: {Status} {Reason} - {Body}", (int)res.StatusCode, res.ReasonPhrase, body);
+                throw new HttpRequestException($"Supabase delete all failed: {(int)res.StatusCode} {res.ReasonPhrase} - {body}");
+            }
+
+            _logger.LogInformation("Supabase delete all succeeded: {Status}", (int)res.StatusCode);
         }
 
         public async Task<List<Candle>> GetRecentAsync(string symbol, int take = 100)

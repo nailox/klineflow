@@ -1,10 +1,7 @@
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using klineflow.Clients;
 using klineflow.Models;
-using System.Linq;
-using System.Text.Json;
 using System.Globalization;
+using System.Text.Json;
 
 namespace klineflow.Services
 {

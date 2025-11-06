@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-
 namespace klineflow.Models
 {
  public class KlineResponse

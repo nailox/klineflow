@@ -1,6 +1,6 @@
 namespace klineflow.DTOs
 {
- public class ForecastRequestDto
+ public class CandlesRequestDto
  {
  public string Symbol { get; set; } = string.Empty;
  public string Interval { get; set; } = "1h";

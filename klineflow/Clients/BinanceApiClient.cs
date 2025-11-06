@@ -1,11 +1,6 @@
-using System.Net.Http;
-using System.Net.Http.Json;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Options;
 using klineflow.Config;
-using System.Collections.Generic;
+using Microsoft.Extensions.Options;
 using System.Text.Json;
-using Microsoft.Extensions.Logging;
 
 namespace klineflow.Clients
 {
@@ -28,8 +23,6 @@ namespace klineflow.Clients
  _logger.LogInformation("Binance URL: {Url}", url);
 
  var request = new HttpRequestMessage(HttpMethod.Get, url);
- // Set a Mozilla Firefox User-Agent header
- request.Headers.UserAgent.ParseAdd("Mozilla/5.0 (Windows NT10.0; Win64; x64; rv:117.0) Gecko/20100101 Firefox/117.0");
 
  var response = await _http.SendAsync(request);
  response.EnsureSuccessStatusCode();

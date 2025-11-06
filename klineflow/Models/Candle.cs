@@ -1,5 +1,3 @@
-using System;
-
 namespace klineflow.Models
 {
  public class Candle
