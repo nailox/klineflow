@@ -1,12 +1,9 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.EntityFrameworkCore;
 using klineflow.Config;
 using klineflow.Clients;
 using klineflow.Services;
-using klineflow.Repositories;
-using klineflow.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,17 +11,20 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.Configure<BinanceSettings>(builder.Configuration.GetSection("Binance"));
 
 // HttpClient for Binance
-builder.Services.AddHttpClient<BinanceApiClient>();
+builder.Services.AddHttpClient<BinanceApiClient>()
+    .ConfigureHttpClient(client =>
+    {
+        client.BaseAddress = new Uri("https://api.binance.com"); // Set the base address for Binance API
+    });
+    
+// Supabase Rest client
+builder.Services.AddHttpClient<SupabaseRestClient>();
 
-// DbContext
-builder.Services.AddDbContext<AppDbContext>(options =>
- options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-
-// DI
+// DI - register services
 builder.Services.AddScoped<BinanceService>();
 builder.Services.AddScoped<TimeSeriesService>();
 builder.Services.AddSingleton<ForecastService>();
-builder.Services.AddScoped<ICandleRepository, CandleRepository>();
+builder.Services.AddScoped<SupabaseRestClient>();
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
