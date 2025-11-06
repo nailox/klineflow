@@ -9,6 +9,7 @@
   <ItemGroup>
     <PackageReference Include="Supabase" Version="1.1.1" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.0" />
   </ItemGroup>
 
   <!-- Exclude SQL scripts from project build/evaluation to avoid T-SQL parser errors in the IDE/build -->

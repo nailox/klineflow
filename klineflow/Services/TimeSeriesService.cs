@@ -1,5 +1,7 @@
-using klineflow.Clients;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using klineflow.Models;
+using klineflow.Clients;
 
 namespace klineflow.Services
 {
@@ -24,6 +26,11 @@ namespace klineflow.Services
  public async Task<List<Candle>> GetRecentAsync(string symbol, int take =100)
  {
  return await _supabase.GetRecentAsync(symbol, take);
+ }
+
+ public async Task<List<Candle>> GetRangeAsync(string symbol, long? startOpenTimeMs, long? endOpenTimeMs, int limit =100)
+ {
+ return await _supabase.GetRangeAsync(symbol, startOpenTimeMs, endOpenTimeMs, limit);
  }
  }
 }

@@ -1,7 +1,15 @@
+using System.Net.Http;
+using System.Net.Http.Json;
+using System.Threading.Tasks;
+using System.Collections.Generic;
+using Microsoft.Extensions.Configuration;
+using System;
 using klineflow.Models;
-using System.Net;
-using System.Text;
+using System.Linq;
 using System.Text.Json;
+using System.Text;
+using Microsoft.Extensions.Logging;
+using System.Net;
 
 namespace klineflow.Clients
 {
@@ -111,6 +119,31 @@ namespace klineflow.Clients
                 var body = await res.Content.ReadAsStringAsync();
                 _logger.LogError("Supabase GET to {Endpoint} failed: {Status} {Reason} - {Body}", endpoint, (int)res.StatusCode, res.ReasonPhrase, body);
                 throw new HttpRequestException($"Supabase query failed: {(int)res.StatusCode} {res.ReasonPhrase} - {body}");
+            }
+
+            var list = await res.Content.ReadFromJsonAsync<List<Candle>>();
+            return list ?? new List<Candle>();
+        }
+
+        // New: get candles in a time range (opentime in milliseconds since epoch)
+        public async Task<List<Candle>> GetRangeAsync(string symbol, long? startOpenTimeMs, long? endOpenTimeMs, int limit = 100)
+        {
+            var baseUrl = _url.TrimEnd('/');
+            var encoded = WebUtility.UrlEncode(symbol);
+            var filters = new List<string> { $"symbol=eq.{encoded}" };
+            if (startOpenTimeMs.HasValue) filters.Add($"opentime=gte.{startOpenTimeMs.Value}");
+            if (endOpenTimeMs.HasValue) filters.Add($"opentime=lte.{endOpenTimeMs.Value}");
+            var filterQuery = string.Join("&", filters);
+            var endpoint = $"{baseUrl}/rest/v1/candles?select=*&{filterQuery}&order=opentime.desc&limit={limit}";
+
+            _logger.LogInformation("Supabase RANGE GET {Endpoint} - apiKey={ApiKeyMask}", endpoint, MaskKey(_apikey));
+
+            var res = await _http.GetAsync(endpoint);
+            if (!res.IsSuccessStatusCode)
+            {
+                var body = await res.Content.ReadAsStringAsync();
+                _logger.LogError("Supabase RANGE GET to {Endpoint} failed: {Status} {Reason} - {Body}", endpoint, (int)res.StatusCode, res.ReasonPhrase, body);
+                throw new HttpRequestException($"Supabase range query failed: {(int)res.StatusCode} {res.ReasonPhrase} - {body}");
             }
 
             var list = await res.Content.ReadFromJsonAsync<List<Candle>>();
