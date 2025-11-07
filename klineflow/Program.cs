@@ -31,6 +31,9 @@ builder.Services.AddScoped<TimeSeriesService>();
 builder.Services.AddScoped<ForecastService>();
 builder.Services.AddScoped<SupabaseRestClient>();
 
+// Token service (generates JWT tokens)
+builder.Services.AddSingleton<TokenService>();
+
 // JWT Authentication setup
 var jwtSection = builder.Configuration.GetSection("Jwt");
 var keyString = jwtSection.GetValue<string>("Key");
@@ -91,25 +94,6 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
-
-// Token endpoint for admin (for testing only)
-app.MapPost("/token", (string username, string password) =>
-{
- var cfg = app.Configuration.GetSection("Jwt");
- var adminUser = cfg.GetValue<string>("AdminUser");
- var adminPass = cfg.GetValue<string>("AdminPassword");
- if (username != adminUser || password != adminPass) return Results.Unauthorized();
- var claims = new[] { new System.Security.Claims.Claim(System.Security.Claims.ClaimTypes.Name, username), new System.Security.Claims.Claim(System.Security.Claims.ClaimTypes.Role, "Admin") };
- var token = new System.IdentityModel.Tokens.Jwt.JwtSecurityToken(
- issuer: cfg.GetValue<string>("Issuer"),
- audience: cfg.GetValue<string>("Audience"),
- claims: claims,
- expires: DateTime.UtcNow.AddHours(2),
- signingCredentials: new SigningCredentials(signingKey, SecurityAlgorithms.HmacSha256)
- );
- var tokenStr = new System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler().WriteToken(token);
- return Results.Ok(new { token = tokenStr });
-});
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
