@@ -1,15 +1,7 @@
-using System.Net.Http;
-using System.Net.Http.Json;
-using System.Threading.Tasks;
-using System.Collections.Generic;
-using Microsoft.Extensions.Configuration;
-using System;
 using klineflow.Models;
-using System.Linq;
-using System.Text.Json;
-using System.Text;
-using Microsoft.Extensions.Logging;
 using System.Net;
+using System.Text;
+using System.Text.Json;
 
 namespace klineflow.Clients
 {

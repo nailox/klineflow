@@ -17,16 +17,6 @@ namespace klineflow.Services
  _geminiApiKey = config["Gemini:ApiKey"] ?? throw new ArgumentNullException("Gemini:ApiKey");
  }
 
- // Simple naive forecast: next close = average of last N closes
- public ForecastResult Forecast(List<Candle> candles)
- {
- var result = new ForecastResult();
- if (candles == null || !candles.Any()) return result;
- result.Symbol = candles.First().Symbol;
- result.ForecastedClose = candles.Average(c => c.Close);
- return result;
- }
-
  public async Task<string> AnalyzeWithGeminiAsync(List<Candle> candles)
  {
  // Ensure we have up to100 candles; caller should provide100 but guard here
